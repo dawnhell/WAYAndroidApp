@@ -1,8 +1,11 @@
 package way.fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -25,6 +28,7 @@ import java.util.Date;
 import way.R;
 import way.activities.VRActivity;
 import way.services.HTTPService;
+import way.shared.WAYLocationListener;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -136,11 +140,20 @@ public class CameraFragment extends Fragment {
         }
 
         try {
-            String response = new HTTPService().sendVRPhoto(clippedImageBitmap);
+            String response = new HTTPService().sendVRPhoto(clippedImageBitmap.toString());
             Log.i("Saving photo to server", response);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        getLocation();
+    }
+
+    public void getLocation() {
+        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+
+        LocationListener locationListener = new WAYLocationListener(getActivity());
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 4000, 10, locationListener);
     }
 
     public Bitmap combineImagesHorizontally(Bitmap c, Bitmap s) {
